@@ -1,0 +1,885 @@
+[
+  {
+    "id": "table.Activity",
+    "label": "Create table \"Activity\"",
+    "summary": "Creates table \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Activity\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Activity\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Activity\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Activity\"",
+        "sql": "CREATE TABLE \"public\".\"Activity\" (\n  \"address\" text,\n  \"capacity\" int4 NOT NULL,\n  \"categoryId\" text NOT NULL,\n  \"coverImage\" text,\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"description\" text NOT NULL,\n  \"endsAt\" timestamptz(3),\n  \"hostId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"locationName\" text NOT NULL,\n  \"startsAt\" timestamptz(3) NOT NULL,\n  \"status\" text DEFAULT 'DRAFT' NOT NULL,\n  \"title\" text NOT NULL,\n  \"updatedAt\" timestamptz(3) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Activity_status_check_a78ed678\" CHECK (\"status\" IN ('DRAFT', 'PUBLISHED', 'CANCELLED', 'COMPLETED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Activity\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Activity\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Activity\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.ActivityCategory",
+    "label": "Create table \"ActivityCategory\"",
+    "summary": "Creates table \"ActivityCategory\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ActivityCategory"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ActivityCategory\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ActivityCategory\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"ActivityCategory\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ActivityCategory\"",
+        "sql": "CREATE TABLE \"public\".\"ActivityCategory\" (\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"isActive\" bool DEFAULT true NOT NULL,\n  \"name\" text NOT NULL,\n  \"slug\" text NOT NULL,\n  \"updatedAt\" timestamptz(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ActivityCategory\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"ActivityCategory\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"ActivityCategory\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Participation",
+    "label": "Create table \"Participation\"",
+    "summary": "Creates table \"Participation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Participation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Participation\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Participation\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Participation\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Participation\"",
+        "sql": "CREATE TABLE \"public\".\"Participation\" (\n  \"activityId\" text NOT NULL,\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"status\" text DEFAULT 'PENDING' NOT NULL,\n  \"updatedAt\" timestamptz(3) NOT NULL,\n  \"userId\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Participation_status_check_5b23fbf8\" CHECK (\"status\" IN ('PENDING', 'APPROVED', 'REJECTED', 'WITHDRAWN', 'CANCELLED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Participation\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Participation\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Participation\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "unique.ActivityCategory.ActivityCategory_name_key",
+    "label": "Add unique constraint on \"ActivityCategory\" (name)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "ActivityCategory_name_key",
+        "table": "ActivityCategory"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ActivityCategory_name_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ActivityCategory_name_key",
+          "public",
+          "\"public\".\"ActivityCategory\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ActivityCategory_name_key\" on \"ActivityCategory\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"ActivityCategory_name_key\"",
+        "sql": "ALTER TABLE \"public\".\"ActivityCategory\" ADD CONSTRAINT \"ActivityCategory_name_key\" UNIQUE (\"name\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"ActivityCategory_name_key\" exists on (name)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "ActivityCategory_name_key",
+          "public",
+          "\"public\".\"ActivityCategory\"",
+          "u",
+          "[\"name\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.ActivityCategory.ActivityCategory_slug_key",
+    "label": "Add unique constraint on \"ActivityCategory\" (slug)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "ActivityCategory_slug_key",
+        "table": "ActivityCategory"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ActivityCategory_slug_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ActivityCategory_slug_key",
+          "public",
+          "\"public\".\"ActivityCategory\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ActivityCategory_slug_key\" on \"ActivityCategory\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"ActivityCategory_slug_key\"",
+        "sql": "ALTER TABLE \"public\".\"ActivityCategory\" ADD CONSTRAINT \"ActivityCategory_slug_key\" UNIQUE (\"slug\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"ActivityCategory_slug_key\" exists on (slug)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "ActivityCategory_slug_key",
+          "public",
+          "\"public\".\"ActivityCategory\"",
+          "u",
+          "[\"slug\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Participation.Participation_activityId_userId_key",
+    "label": "Add unique constraint on \"Participation\" (activityId, userId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Participation_activityId_userId_key",
+        "table": "Participation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Participation_activityId_userId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Participation_activityId_userId_key",
+          "public",
+          "\"public\".\"Participation\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"Participation_activityId_userId_key\" on \"Participation\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Participation_activityId_userId_key\"",
+        "sql": "ALTER TABLE \"public\".\"Participation\" ADD CONSTRAINT \"Participation_activityId_userId_key\" UNIQUE (\"activityId\", \"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"Participation_activityId_userId_key\" exists on (activityId, userId)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "Participation_activityId_userId_key",
+          "public",
+          "\"public\".\"Participation\"",
+          "u",
+          "[\"activityId\",\"userId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Activity.Activity_categoryId_idx_15c304f2",
+    "label": "Create index \"Activity_categoryId_idx_15c304f2\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Activity_categoryId_idx_15c304f2",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Activity_categoryId_idx_15c304f2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_categoryId_idx_15c304f2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Activity_categoryId_idx_15c304f2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Activity_categoryId_idx_15c304f2\"",
+        "sql": "CREATE INDEX \"Activity_categoryId_idx_15c304f2\" ON \"public\".\"Activity\" (\"categoryId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Activity_categoryId_idx_15c304f2\" exists on \"Activity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_categoryId_idx_15c304f2\"",
+          "i",
+          "I",
+          "\"public\".\"Activity\"",
+          "btree",
+          "[\"categoryId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Activity.Activity_categoryId_status_startsAt_idx_0ebe4d07",
+    "label": "Create index \"Activity_categoryId_status_startsAt_idx_0ebe4d07\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Activity_categoryId_status_startsAt_idx_0ebe4d07",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Activity_categoryId_status_startsAt_idx_0ebe4d07\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_categoryId_status_startsAt_idx_0ebe4d07\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Activity_categoryId_status_startsAt_idx_0ebe4d07\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Activity_categoryId_status_startsAt_idx_0ebe4d07\"",
+        "sql": "CREATE INDEX \"Activity_categoryId_status_startsAt_idx_0ebe4d07\" ON \"public\".\"Activity\" (\"categoryId\", \"status\", \"startsAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Activity_categoryId_status_startsAt_idx_0ebe4d07\" exists on \"Activity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_categoryId_status_startsAt_idx_0ebe4d07\"",
+          "i",
+          "I",
+          "\"public\".\"Activity\"",
+          "btree",
+          "[\"categoryId\",\"status\",\"startsAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Activity.Activity_hostId_idx_05205577",
+    "label": "Create index \"Activity_hostId_idx_05205577\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Activity_hostId_idx_05205577",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Activity_hostId_idx_05205577\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_hostId_idx_05205577\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Activity_hostId_idx_05205577\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Activity_hostId_idx_05205577\"",
+        "sql": "CREATE INDEX \"Activity_hostId_idx_05205577\" ON \"public\".\"Activity\" (\"hostId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Activity_hostId_idx_05205577\" exists on \"Activity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_hostId_idx_05205577\"",
+          "i",
+          "I",
+          "\"public\".\"Activity\"",
+          "btree",
+          "[\"hostId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Activity.Activity_status_startsAt_idx_b8c24256",
+    "label": "Create index \"Activity_status_startsAt_idx_b8c24256\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Activity_status_startsAt_idx_b8c24256",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Activity_status_startsAt_idx_b8c24256\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_status_startsAt_idx_b8c24256\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Activity_status_startsAt_idx_b8c24256\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Activity_status_startsAt_idx_b8c24256\"",
+        "sql": "CREATE INDEX \"Activity_status_startsAt_idx_b8c24256\" ON \"public\".\"Activity\" (\"status\", \"startsAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Activity_status_startsAt_idx_b8c24256\" exists on \"Activity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_status_startsAt_idx_b8c24256\"",
+          "i",
+          "I",
+          "\"public\".\"Activity\"",
+          "btree",
+          "[\"status\",\"startsAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Participation.Participation_activityId_idx_bf2a659e",
+    "label": "Create index \"Participation_activityId_idx_bf2a659e\" on \"Participation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Participation_activityId_idx_bf2a659e",
+        "table": "Participation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Participation_activityId_idx_bf2a659e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Participation_activityId_idx_bf2a659e\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Participation_activityId_idx_bf2a659e\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Participation_activityId_idx_bf2a659e\"",
+        "sql": "CREATE INDEX \"Participation_activityId_idx_bf2a659e\" ON \"public\".\"Participation\" (\"activityId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Participation_activityId_idx_bf2a659e\" exists on \"Participation\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Participation_activityId_idx_bf2a659e\"",
+          "i",
+          "I",
+          "\"public\".\"Participation\"",
+          "btree",
+          "[\"activityId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Participation.Participation_activityId_status_idx_463c9b1a",
+    "label": "Create index \"Participation_activityId_status_idx_463c9b1a\" on \"Participation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Participation_activityId_status_idx_463c9b1a",
+        "table": "Participation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Participation_activityId_status_idx_463c9b1a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Participation_activityId_status_idx_463c9b1a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Participation_activityId_status_idx_463c9b1a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Participation_activityId_status_idx_463c9b1a\"",
+        "sql": "CREATE INDEX \"Participation_activityId_status_idx_463c9b1a\" ON \"public\".\"Participation\" (\"activityId\", \"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Participation_activityId_status_idx_463c9b1a\" exists on \"Participation\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Participation_activityId_status_idx_463c9b1a\"",
+          "i",
+          "I",
+          "\"public\".\"Participation\"",
+          "btree",
+          "[\"activityId\",\"status\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Participation.Participation_userId_createdAt_idx_f726f04a",
+    "label": "Create index \"Participation_userId_createdAt_idx_f726f04a\" on \"Participation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Participation_userId_createdAt_idx_f726f04a",
+        "table": "Participation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Participation_userId_createdAt_idx_f726f04a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Participation_userId_createdAt_idx_f726f04a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Participation_userId_createdAt_idx_f726f04a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Participation_userId_createdAt_idx_f726f04a\"",
+        "sql": "CREATE INDEX \"Participation_userId_createdAt_idx_f726f04a\" ON \"public\".\"Participation\" (\"userId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Participation_userId_createdAt_idx_f726f04a\" exists on \"Participation\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Participation_userId_createdAt_idx_f726f04a\"",
+          "i",
+          "I",
+          "\"public\".\"Participation\"",
+          "btree",
+          "[\"userId\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Participation.Participation_userId_idx_a489d58a",
+    "label": "Create index \"Participation_userId_idx_a489d58a\" on \"Participation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Participation_userId_idx_a489d58a",
+        "table": "Participation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Participation_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Participation_userId_idx_a489d58a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Participation_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Participation_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"Participation_userId_idx_a489d58a\" ON \"public\".\"Participation\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Participation_userId_idx_a489d58a\" exists on \"Participation\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Participation_userId_idx_a489d58a\"",
+          "i",
+          "I",
+          "\"public\".\"Participation\"",
+          "btree",
+          "[\"userId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Activity.Activity_hostId_fkey",
+    "label": "Add foreign key \"Activity_hostId_fkey\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Activity_hostId_fkey",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Activity_hostId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Activity_hostId_fkey",
+          "public",
+          "\"public\".\"Activity\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Activity_hostId_fkey\" on \"Activity\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Activity_hostId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Activity\"\nADD CONSTRAINT \"Activity_hostId_fkey\"\nFOREIGN KEY (\"hostId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE RESTRICT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Activity_hostId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Activity_hostId_fkey",
+          "public",
+          "\"public\".\"Activity\"",
+          "f",
+          "[\"hostId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "r",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Activity.Activity_categoryId_fkey",
+    "label": "Add foreign key \"Activity_categoryId_fkey\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Activity_categoryId_fkey",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Activity_categoryId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Activity_categoryId_fkey",
+          "public",
+          "\"public\".\"Activity\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Activity_categoryId_fkey\" on \"Activity\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Activity_categoryId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Activity\"\nADD CONSTRAINT \"Activity_categoryId_fkey\"\nFOREIGN KEY (\"categoryId\")\nREFERENCES \"public\".\"ActivityCategory\" (\"id\")\nON DELETE RESTRICT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Activity_categoryId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Activity_categoryId_fkey",
+          "public",
+          "\"public\".\"Activity\"",
+          "f",
+          "[\"categoryId\"]",
+          "\"public\".\"ActivityCategory\"",
+          "[\"id\"]",
+          "r",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Participation.Participation_activityId_fkey",
+    "label": "Add foreign key \"Participation_activityId_fkey\" on \"Participation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Participation_activityId_fkey",
+        "table": "Participation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Participation_activityId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Participation_activityId_fkey",
+          "public",
+          "\"public\".\"Participation\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Participation_activityId_fkey\" on \"Participation\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Participation_activityId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Participation\"\nADD CONSTRAINT \"Participation_activityId_fkey\"\nFOREIGN KEY (\"activityId\")\nREFERENCES \"public\".\"Activity\" (\"id\")\nON DELETE RESTRICT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Participation_activityId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Participation_activityId_fkey",
+          "public",
+          "\"public\".\"Participation\"",
+          "f",
+          "[\"activityId\"]",
+          "\"public\".\"Activity\"",
+          "[\"id\"]",
+          "r",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Participation.Participation_userId_fkey",
+    "label": "Add foreign key \"Participation_userId_fkey\" on \"Participation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Participation_userId_fkey",
+        "table": "Participation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Participation_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Participation_userId_fkey",
+          "public",
+          "\"public\".\"Participation\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Participation_userId_fkey\" on \"Participation\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Participation_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Participation\"\nADD CONSTRAINT \"Participation_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE RESTRICT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Participation_userId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Participation_userId_fkey",
+          "public",
+          "\"public\".\"Participation\"",
+          "f",
+          "[\"userId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "r",
+          "a"
+        ]
+      }
+    ]
+  }
+]

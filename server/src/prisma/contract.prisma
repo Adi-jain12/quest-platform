@@ -19,6 +19,9 @@ model User {
 
   sessions     RefreshSession[]
 
+  hostedActivities Activity[]
+  participations   Participation[]
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @onCreate(now()) @onUpdate(now())
 }
@@ -42,4 +45,85 @@ model RefreshSession {
   @@index([userId])
   @@index([expiresAt])
   @@index([familyId])
+}
+
+
+
+
+enum ActivityStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum ParticipationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  WITHDRAWN
+  CANCELLED
+}
+
+model ActivityCategory {
+  id        String     @id @onCreate(uuid())
+  name      String     @unique
+  slug      String     @unique
+  isActive  Boolean    @default(true)
+
+  activities Activity[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @onCreate(now()) @onUpdate(now())
+}
+
+model Activity {
+  id           String       @id @onCreate(uuid())
+
+  hostId       String
+  host         User         @relation(fields: [hostId], references: [id], onDelete: Restrict)
+
+  categoryId   String
+  category     ActivityCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  title        String
+  description  String
+  coverImage   String?
+
+  locationName String
+  address      String?
+
+  startsAt     DateTime
+  endsAt       DateTime?
+
+  capacity     Int
+  status       ActivityStatus @default(DRAFT)
+
+  participations Participation[]
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @onCreate(now()) @onUpdate(now())
+
+  @@index([status, startsAt])
+  @@index([categoryId, status, startsAt])
+  @@index([hostId])
+}
+
+model Participation {
+  id         String             @id @onCreate(uuid())
+
+  activityId String
+  activity   Activity           @relation(fields: [activityId], references: [id], onDelete: Restrict)
+
+  userId     String
+  user       User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  status     ParticipationStatus @default(PENDING)
+
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @onCreate(now()) @onUpdate(now())
+
+  @@unique([activityId, userId])
+  @@index([activityId, status])
+  @@index([userId, createdAt])
 }

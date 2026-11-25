@@ -118,6 +118,7 @@ export const loginUser = async (input: LoginInput, db: any) => {
     process.env.JWT_ACCESS_SECRET!,
     {
       expiresIn: "15m",
+      algorithm: "HS256",
     }
   );
 

@@ -1,11 +1,10 @@
 import { GraphQLError } from 'graphql';
 import type { GraphQLContext } from "../../context.js";
 import { checkEmailExists, loginUser, refreshAccessToken, registerUser } from './service.js';
+import { requireAuth, requireRole } from '../../utils.js';
 
 export const userResolvers = {
   Query: {
-    users: (_parent: unknown, _args: unknown, { db }: GraphQLContext) =>
-      db.orm.public.User.all(),
 
     checkEmail: async (
       _parent: unknown,
@@ -13,7 +12,23 @@ export const userResolvers = {
       { db }: GraphQLContext,
     ) => {
       return checkEmailExists(args.email, db);
-    }
+    },
+
+    me: (_parent: unknown, _args: unknown, context: GraphQLContext) => {
+      return requireAuth(context);
+    },
+       
+   users: async (
+    _parent: unknown,
+    _args: unknown,
+    context: GraphQLContext
+  ) => {
+    requireRole(context, ["ADMIN"]);
+
+    return await context.db.orm.public.User
+      .all();
+  },
+
   },
   Mutation: {
     // createUser: (
