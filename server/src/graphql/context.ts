@@ -63,6 +63,8 @@ export const createContext = async ({
         throw new Error("Invalid token payload.");
       }
 
+      console.log("Decoded JWT payload:", decoded);
+
       const currentUser = await db.orm.public.User
         .whereUnique({ id: decoded.sub })
         .first();
