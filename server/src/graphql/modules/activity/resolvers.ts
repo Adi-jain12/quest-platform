@@ -28,7 +28,25 @@ export const activityResolvers = {
         return createActivity(input, user.id, context.db);
         },
     
-  }
+  },
+
+   Activity: {
+    host: async (parent : { hostId: string }, _args : unknown, context: GraphQLContext) => {
+      return context.db.orm.public.User
+        .whereUnique({ id: parent.hostId })
+        .first();
+    },
+
+    // category: async (parent, _args, context: GraphQLContext) => {
+    //   return context.db.orm.public.ActivityCategory
+    //     .whereUnique({ id: parent.categoryId })
+    //     .first();
+    // },
+
+    // approvedCount: async (parent, _args, context: GraphQLContext) => {
+    //   // We'll implement this when we cover participation queries.
+    // },
+  },
   
 
 };

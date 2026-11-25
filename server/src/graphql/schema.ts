@@ -14,4 +14,7 @@ export const resolvers = {
     ...userResolvers.Mutation,
     ...activityResolvers.Mutation,
   },
+  Activity: {
+    ...activityResolvers.Activity,
+  },
 };
