@@ -3,10 +3,30 @@ import type { GraphQLContext } from "../../context.js";
 
 import { requireAuth, requireRole } from '../../utils.js';
 import { createActivitySchema, validateInput } from './validation.js';
-import { createActivity } from './service.js';
+import { createActivity, getActivityById, getActivityCategories } from './service.js';
 
 export const activityResolvers = {
   Query: {
+
+     activityCategories: async (
+      _parent: unknown,
+      _args: unknown,
+      context: GraphQLContext
+    ) => {
+      return getActivityCategories(context.db);
+    },
+
+    activity: async (
+      _parent: unknown,
+      args: { id: string },
+      context: GraphQLContext
+    ) => {
+      return getActivityById(
+        args.id,
+        context.user,
+        context.db
+      );
+    },
 
   
 
@@ -37,15 +57,11 @@ export const activityResolvers = {
         .first();
     },
 
-    // category: async (parent, _args, context: GraphQLContext) => {
-    //   return context.db.orm.public.ActivityCategory
-    //     .whereUnique({ id: parent.categoryId })
-    //     .first();
-    // },
-
-    // approvedCount: async (parent, _args, context: GraphQLContext) => {
-    //   // We'll implement this when we cover participation queries.
-    // },
+    category: async (parent : { categoryId: string }, _args: unknown, context: GraphQLContext) => {
+    return context.db.orm.public.ActivityCategory
+      .whereUnique({ id: parent.categoryId })
+      .first();
+  },
   },
   
 

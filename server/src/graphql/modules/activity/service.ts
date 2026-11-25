@@ -4,6 +4,11 @@ import type { z } from "zod";
 
 type CreateActivityInput = z.infer<typeof createActivitySchema>;
 
+interface RequestingUser {
+  id: string;
+  role: "USER" | "HOST" | "ADMIN";
+}
+
 export async function createActivity(
   input: CreateActivityInput,
   userId: string,
@@ -43,9 +48,51 @@ export async function createActivity(
     endsAt: input.endsAt ? new Date(input.endsAt) : null,
 
     capacity: input.capacity,
-    // Status is intentionally omitted.
-    // The database default is DRAFT.
   });
 
   return activity;
+}
+
+
+export async function getActivityCategories(
+  db: any
+) {
+  return await db.orm.public.ActivityCategory
+    .where({ isActive: true })
+    .orderBy((category : { name: any }) => category.name.asc())
+    .all();
+}
+
+
+export async function getActivityById(
+  id: string,
+  user: RequestingUser | null,
+  db: any
+) {
+
+  const activity = await db.orm.public.Activity
+    .whereUnique({ id })
+    .first();
+
+  // Activity doesn't exist
+  if (!activity) {
+    return null;
+  }
+
+  // Published activities are publicly accessible
+  if (activity.status === "PUBLISHED") {
+    return activity;
+  }
+
+  // Admin can access all activities
+  if (user?.role === "ADMIN") {
+    return activity;
+  }
+
+  // Host can access their own activities
+  if (user?.id === activity.hostId) {
+    return activity;
+  }
+
+  return null;
 }

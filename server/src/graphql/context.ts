@@ -90,8 +90,6 @@ export const createContext = async ({
     }
   }
 
-  console.log("Context created for user:", user);
-
   return {
     db,
     req,
