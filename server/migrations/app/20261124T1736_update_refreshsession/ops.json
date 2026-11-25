@@ -1,0 +1,218 @@
+[
+  {
+    "id": "column.public.RefreshSession.familyId",
+    "label": "Add column \"familyId\" to \"RefreshSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "familyId",
+        "table": "RefreshSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"familyId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "RefreshSession",
+          "familyId"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"familyId\" on \"RefreshSession\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"familyId\"",
+        "sql": "ALTER TABLE \"public\".\"RefreshSession\" ADD COLUMN \"familyId\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"familyId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "RefreshSession",
+          "familyId"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"familyId\" on \"RefreshSession\""
+        }
+      },
+      {
+        "description": "verify column \"familyId\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "RefreshSession",
+          "familyId",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.RefreshSession.replacedByTokenHash",
+    "label": "Add column \"replacedByTokenHash\" to \"RefreshSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "replacedByTokenHash",
+        "table": "RefreshSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"replacedByTokenHash\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "RefreshSession",
+          "replacedByTokenHash"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"replacedByTokenHash\" on \"RefreshSession\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"replacedByTokenHash\"",
+        "sql": "ALTER TABLE \"public\".\"RefreshSession\" ADD COLUMN \"replacedByTokenHash\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"replacedByTokenHash\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "RefreshSession",
+          "replacedByTokenHash"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"replacedByTokenHash\" on \"RefreshSession\""
+        }
+      },
+      {
+        "description": "verify column \"replacedByTokenHash\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "RefreshSession",
+          "replacedByTokenHash",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.RefreshSession.RefreshSession_replacedByTokenHash_key",
+    "label": "Add unique constraint on \"RefreshSession\" (replacedByTokenHash)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "RefreshSession_replacedByTokenHash_key",
+        "table": "RefreshSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"RefreshSession_replacedByTokenHash_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "RefreshSession_replacedByTokenHash_key",
+          "public",
+          "\"public\".\"RefreshSession\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"RefreshSession_replacedByTokenHash_key\" on \"RefreshSession\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"RefreshSession_replacedByTokenHash_key\"",
+        "sql": "ALTER TABLE \"public\".\"RefreshSession\" ADD CONSTRAINT \"RefreshSession_replacedByTokenHash_key\" UNIQUE (\"replacedByTokenHash\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"RefreshSession_replacedByTokenHash_key\" exists on (replacedByTokenHash)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "RefreshSession_replacedByTokenHash_key",
+          "public",
+          "\"public\".\"RefreshSession\"",
+          "u",
+          "[\"replacedByTokenHash\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.RefreshSession.RefreshSession_familyId_idx_3d03045e",
+    "label": "Create index \"RefreshSession_familyId_idx_3d03045e\" on \"RefreshSession\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "RefreshSession_familyId_idx_3d03045e",
+        "table": "RefreshSession"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"RefreshSession_familyId_idx_3d03045e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"RefreshSession_familyId_idx_3d03045e\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"RefreshSession_familyId_idx_3d03045e\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"RefreshSession_familyId_idx_3d03045e\"",
+        "sql": "CREATE INDEX \"RefreshSession_familyId_idx_3d03045e\" ON \"public\".\"RefreshSession\" (\"familyId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"RefreshSession_familyId_idx_3d03045e\" exists on \"RefreshSession\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"RefreshSession_familyId_idx_3d03045e\"",
+          "i",
+          "I",
+          "\"public\".\"RefreshSession\"",
+          "btree",
+          "[\"familyId\"]"
+        ]
+      }
+    ]
+  }
+]

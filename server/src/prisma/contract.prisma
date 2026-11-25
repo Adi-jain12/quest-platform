@@ -24,18 +24,22 @@ model User {
 }
 
 model RefreshSession {
-  id         String   @id @onCreate(uuid())
-  tokenHash  String   @unique
+  id                  String   @id @onCreate(uuid())
+  tokenHash           String   @unique
 
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyId            String?
+  replacedByTokenHash String?  @unique
 
-  expiresAt  DateTime
-  revokedAt  DateTime?
-  lastUsedAt DateTime?
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt  DateTime @default(now())
+  expiresAt           DateTime
+  revokedAt           DateTime?
+  lastUsedAt          DateTime?
+
+  createdAt           DateTime @default(now())
 
   @@index([userId])
   @@index([expiresAt])
+  @@index([familyId])
 }

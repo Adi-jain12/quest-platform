@@ -58,6 +58,13 @@
                   }
                 }
               },
+              "familyId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "id": {
                 "nullable": false,
                 "type": {
@@ -73,6 +80,13 @@
                   "typeParams": {
                     "precision": 3
                   }
+                }
+              },
+              "replacedByTokenHash": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
                 }
               },
               "revokedAt": {
@@ -126,11 +140,17 @@
                 "expiresAt": {
                   "column": "expiresAt"
                 },
+                "familyId": {
+                  "column": "familyId"
+                },
                 "id": {
                   "column": "id"
                 },
                 "lastUsedAt": {
                   "column": "lastUsedAt"
+                },
+                "replacedByTokenHash": {
+                  "column": "replacedByTokenHash"
                 },
                 "revokedAt": {
                   "column": "revokedAt"
@@ -306,6 +326,11 @@
                     "precision": 3
                   }
                 },
+                "familyId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
                 "id": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -318,6 +343,11 @@
                   "typeParams": {
                     "precision": 3
                   }
+                },
+                "replacedByTokenHash": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
                 },
                 "revokedAt": {
                   "codecId": "pg/timestamptz-date@1",
@@ -371,6 +401,14 @@
                 },
                 {
                   "columns": [
+                    "familyId"
+                  ],
+                  "name": "RefreshSession_familyId_idx_3d03045e",
+                  "prefix": "RefreshSession_familyId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "userId"
                   ],
                   "name": "RefreshSession_userId_idx_a489d58a",
@@ -387,6 +425,11 @@
                 {
                   "columns": [
                     "tokenHash"
+                  ]
+                },
+                {
+                  "columns": [
+                    "replacedByTokenHash"
                   ]
                 }
               ]
@@ -497,7 +540,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "34433b1ae465ff56faced0f5a6a078eb55a749083d2703c9e6316b1ce2d4b199"
+    "storageHash": "9b563c8fd10c9bc04c0f8f99b05894d998c4f4ffc80822107776f18558507b66"
   },
   "execution": {
     "executionHash": "b03e81c6447c5c719d2a961ad68707b3b0438a3de574437950d034f08db6951f",

@@ -18,7 +18,7 @@ import type {
 } from '@prisma/orm-postgres/contract-types';
 
 export type StorageHash =
-  StorageHashBase<'34433b1ae465ff56faced0f5a6a078eb55a749083d2703c9e6316b1ce2d4b199'>;
+  StorageHashBase<'9b563c8fd10c9bc04c0f8f99b05894d998c4f4ffc80822107776f18558507b66'>;
 export type ExecutionHash =
   ExecutionHashBase<'b03e81c6447c5c719d2a961ad68707b3b0438a3de574437950d034f08db6951f'>;
 export type ProfileHash =
@@ -327,8 +327,10 @@ export namespace Models {
   export type public_RefreshSession = {
     createdAt: FieldOutputTypes['public']['RefreshSession']['createdAt'];
     expiresAt: FieldOutputTypes['public']['RefreshSession']['expiresAt'];
+    familyId: FieldOutputTypes['public']['RefreshSession']['familyId'];
     id: FieldOutputTypes['public']['RefreshSession']['id'];
     lastUsedAt: FieldOutputTypes['public']['RefreshSession']['lastUsedAt'];
+    replacedByTokenHash: FieldOutputTypes['public']['RefreshSession']['replacedByTokenHash'];
     revokedAt: FieldOutputTypes['public']['RefreshSession']['revokedAt'];
     tokenHash: FieldOutputTypes['public']['RefreshSession']['tokenHash'];
     userId: FieldOutputTypes['public']['RefreshSession']['userId'];
@@ -392,6 +394,12 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly precision: 3 };
                   readonly many: false;
                 };
+                readonly familyId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly id: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
@@ -403,6 +411,12 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-date@1';
                   readonly nullable: true;
                   readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly replacedByTokenHash: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly revokedAt: {
@@ -426,12 +440,21 @@ type ContractBase = Omit<
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['tokenHash'] }];
+              uniques: readonly [
+                { readonly columns: readonly ['tokenHash'] },
+                { readonly columns: readonly ['replacedByTokenHash'] },
+              ];
               indexes: readonly [
                 {
                   readonly name: 'RefreshSession_expiresAt_idx_6b6b8c10';
                   readonly prefix: 'RefreshSession_expiresAt_idx';
                   readonly columns: readonly ['expiresAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'RefreshSession_familyId_idx_3d03045e';
+                  readonly prefix: 'RefreshSession_familyId_idx';
+                  readonly columns: readonly ['familyId'];
                   readonly unique: false;
                 },
                 {
@@ -570,6 +593,10 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly precision: 3 };
                 };
               };
+              readonly familyId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly id: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -581,6 +608,10 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-date@1';
                   readonly typeParams: { readonly precision: 3 };
                 };
+              };
+              readonly replacedByTokenHash: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly revokedAt: {
                 readonly nullable: true;
@@ -616,8 +647,10 @@ type ContractBase = Omit<
               readonly fields: {
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly expiresAt: { readonly column: 'expiresAt' };
+                readonly familyId: { readonly column: 'familyId' };
                 readonly id: { readonly column: 'id' };
                 readonly lastUsedAt: { readonly column: 'lastUsedAt' };
+                readonly replacedByTokenHash: { readonly column: 'replacedByTokenHash' };
                 readonly revokedAt: { readonly column: 'revokedAt' };
                 readonly tokenHash: { readonly column: 'tokenHash' };
                 readonly userId: { readonly column: 'userId' };

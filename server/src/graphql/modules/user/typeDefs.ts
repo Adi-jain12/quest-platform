@@ -32,6 +32,21 @@ export const userTypeDefs = `#graphql
     exists: Boolean!
   }
 
+  input LoginInput {
+    email: String!
+    password: String!
+  }
+
+  type LoginPayload {
+    accessToken: String!
+    user: RegisteredUser!
+  }
+
+  type RefreshPayload {
+    accessToken: String!
+    user: RegisteredUser!
+  }
+
   type Query {
     users: [User!]!
     checkEmail(email: String!): EmailCheckResponse!
@@ -40,5 +55,7 @@ export const userTypeDefs = `#graphql
   type Mutation {
     createUser(name: String!, email: String!): User!
     register(input: RegisterInput!): RegisterPayload!
+    login(input: LoginInput!): LoginPayload!
+    refreshToken: RefreshPayload!
   }
 `;
