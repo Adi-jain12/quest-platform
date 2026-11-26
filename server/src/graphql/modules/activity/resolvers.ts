@@ -2,8 +2,8 @@ import { GraphQLError } from 'graphql';
 import type { GraphQLContext } from "../../context.js";
 
 import { requireAuth, requireRole } from '../../utils.js';
-import { createActivitySchema, validateInput } from './validation.js';
-import { createActivity, getActivityById, getActivityCategories } from './service.js';
+import { createActivitySchema, getActivitiesSchema, validateInput } from './validation.js';
+import { createActivity, getActivities, getActivityById, getActivityCategories } from './service.js';
 
 export const activityResolvers = {
   Query: {
@@ -28,6 +28,19 @@ export const activityResolvers = {
       );
     },
 
+
+    activities: async (
+      _parent: unknown,
+      args: { input?: unknown },
+      context: GraphQLContext
+    ) => {
+      const input = validateInput(
+        getActivitiesSchema,
+        args.input ?? {}
+      );
+
+      return getActivities(input, context.db);
+    },
   
 
   },

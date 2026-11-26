@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql";
-import type { createActivitySchema } from "./validation.js";
+import type { createActivitySchema, getActivitiesSchema } from "./validation.js";
 import type { z } from "zod";
 
 type CreateActivityInput = z.infer<typeof createActivitySchema>;
@@ -8,6 +8,8 @@ interface RequestingUser {
   id: string;
   role: "USER" | "HOST" | "ADMIN";
 }
+
+type GetActivitiesInput = z.infer<typeof getActivitiesSchema>;
 
 export async function createActivity(
   input: CreateActivityInput,
@@ -95,4 +97,35 @@ export async function getActivityById(
   }
 
   return null;
+}
+
+
+
+export async function getActivities(
+  input: GetActivitiesInput,
+  db: any
+) {
+  const limit = input.limit ?? 20;
+  const offset = input.offset ?? 0;
+  const now = new Date();
+
+  let query = db.orm.public.Activity
+    .where({ status: "PUBLISHED" })
+    .where((activity : { startsAt: any }) => activity.startsAt.gte(now));
+
+  // Apply category filter only when provided
+  if (input.categoryId) {
+    query = query.where({ categoryId: input.categoryId });
+  }
+
+  const activities = await query
+    .orderBy([
+      (activity : { startsAt: any }) => activity.startsAt.asc(),
+      (activity : { id: any }) => activity.id.asc(),
+    ])
+    .limit(limit)
+    .offset(offset)
+    .all();
+
+  return activities;
 }

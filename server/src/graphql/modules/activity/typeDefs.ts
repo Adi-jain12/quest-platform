@@ -70,11 +70,18 @@ input UpdateActivityInput {
   capacity: Int
 }
 
+input GetActivitiesInput {
+  categoryId: ID
+  limit: Int
+  offset: Int
+}
+
 type Query {
   activities: [Activity!]!
   activity(id: ID!): Activity
   activityCategories: [ActivityCategory!]!
   myHostedActivities: [Activity!]!
+  activities(input: GetActivitiesInput): [Activity!]!
 }
 
 type Mutation {

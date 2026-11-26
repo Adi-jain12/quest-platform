@@ -81,6 +81,14 @@ export const updateActivitySchema = z
     }
   });
 
+  export const getActivitiesSchema = z
+  .object({
+    categoryId: z.string().min(1).nullish(),
+    limit: z.number().int().min(1).max(50).nullish(),
+    offset: z.number().int().min(0).nullish(),
+  })
+  .strict();
+
 // VALIDATION HELPER
 export function validateInput<T extends z.ZodType>(
   schema: T,
