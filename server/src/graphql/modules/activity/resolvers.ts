@@ -2,8 +2,8 @@ import { GraphQLError } from 'graphql';
 import type { GraphQLContext } from "../../context.js";
 
 import { requireAuth, requireRole } from '../../utils.js';
-import { createActivitySchema, getActivitiesSchema, validateInput } from './validation.js';
-import { createActivity, getActivities, getActivityById, getActivityCategories } from './service.js';
+import { createActivitySchema, getActivitiesSchema, getMyHostedActivitiesSchema, updateActivitySchema, validateInput } from './validation.js';
+import { createActivity, getActivities, getActivityById, getActivityCategories, getMyHostedActivities, updateActivity } from './service.js';
 
 export const activityResolvers = {
   Query: {
@@ -41,6 +41,25 @@ export const activityResolvers = {
 
       return getActivities(input, context.db);
     },
+
+    myHostedActivities: async (
+      _parent: unknown,
+      args: { input?: unknown },
+      context: GraphQLContext
+    ) => {
+      const user = requireAuth(context);
+
+      const input = validateInput(
+        getMyHostedActivitiesSchema,
+        args.input ?? {}
+      );
+
+      return getMyHostedActivities(
+        user.id,
+        input,
+        context.db
+      );
+    },
   
 
   },
@@ -60,6 +79,30 @@ export const activityResolvers = {
 
         return createActivity(input, user.id, context.db);
         },
+
+
+      updateActivity: async (
+        _parent: unknown,
+        args: {
+          id: string;
+          input: unknown;
+        },
+        context: GraphQLContext
+      ) => {
+        const user = requireRole(context, ["HOST", "ADMIN"]);
+
+        const input = validateInput(
+          updateActivitySchema,
+          args.input
+        );
+
+        return updateActivity(
+          args.id,
+          input,
+          user,
+          context.db
+        );
+      },
     
   },
 

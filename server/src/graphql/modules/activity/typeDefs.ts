@@ -76,12 +76,18 @@ input GetActivitiesInput {
   offset: Int
 }
 
+input GetMyHostedActivitiesInput {
+  limit: Int
+  offset: Int
+}
+
 type Query {
   activities: [Activity!]!
   activity(id: ID!): Activity
   activityCategories: [ActivityCategory!]!
   myHostedActivities: [Activity!]!
   activities(input: GetActivitiesInput): [Activity!]!
+  myHostedActivities(input: GetMyHostedActivitiesInput): [Activity!]!
 }
 
 type Mutation {

@@ -89,6 +89,13 @@ export const updateActivitySchema = z
   })
   .strict();
 
+  export const getMyHostedActivitiesSchema = z
+  .object({
+    limit: z.number().int().min(1).max(50).nullish(),
+    offset: z.number().int().min(0).nullish(),
+  })
+  .strict();
+
 // VALIDATION HELPER
 export function validateInput<T extends z.ZodType>(
   schema: T,

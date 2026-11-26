@@ -1,18 +1,14 @@
 import { GraphQLError } from "graphql";
-import type { createActivitySchema, getActivitiesSchema } from "./validation.js";
+import type { createActivitySchema, getActivitiesSchema, getMyHostedActivitiesSchema, updateActivitySchema } from "./validation.js";
 import type { z } from "zod";
-
-type CreateActivityInput = z.infer<typeof createActivitySchema>;
 
 interface RequestingUser {
   id: string;
   role: "USER" | "HOST" | "ADMIN";
 }
 
-type GetActivitiesInput = z.infer<typeof getActivitiesSchema>;
-
 export async function createActivity(
-  input: CreateActivityInput,
+  input: z.infer<typeof createActivitySchema>,
   userId: string,
   db : any
 ) {
@@ -102,7 +98,7 @@ export async function getActivityById(
 
 
 export async function getActivities(
-  input: GetActivitiesInput,
+  input: z.infer<typeof getActivitiesSchema>,
   db: any
 ) {
   const limit = input.limit ?? 20;
@@ -128,4 +124,161 @@ export async function getActivities(
     .all();
 
   return activities;
+}
+
+export async function getMyHostedActivities(
+  userId: string,
+  input: z.infer<typeof getMyHostedActivitiesSchema>,
+  db: any
+) {
+  const limit = input.limit ?? 20;
+  const offset = input.offset ?? 0;
+
+  const activities = await db.orm.public.Activity
+    .where({ hostId: userId })
+    .orderBy([
+      (activity : { createdAt: any }) => activity.createdAt.desc(),
+      (activity : { id: any }) => activity.id.desc(),
+    ])
+    .limit(limit)
+    .offset(offset)
+    .all();
+
+  return activities;
+}
+
+
+
+export async function updateActivity(
+  activityId: string,
+  input: z.infer<typeof updateActivitySchema>,
+  user: RequestingUser,
+  db: any
+) {
+  // 1. Find the activity
+  const activity = await db.orm.public.Activity
+    .whereUnique({ id: activityId })
+    .first();
+
+  if (!activity) {
+    throw new GraphQLError("Activity not found.", {
+      extensions: { code: "NOT_FOUND" },
+    });
+  }
+
+  // 2. Check ownership
+  if (user.role !== "ADMIN" && activity.hostId !== user.id) {
+    throw new GraphQLError(
+      "You are not authorized to edit this activity.",
+      { extensions: { code: "FORBIDDEN" } }
+    );
+  }
+
+  // 3. Check activity status
+  if (
+    activity.status === "CANCELLED" ||
+    activity.status === "COMPLETED"
+  ) {
+    throw new GraphQLError(
+      "Cancelled or completed activities cannot be edited.",
+      { extensions: { code: "BAD_USER_INPUT" } }
+    );
+  }
+
+  // 4. Validate category if being changed
+  if (input.categoryId !== undefined) {
+    const category = await db.orm.public.ActivityCategory
+      .whereUnique({ id: input.categoryId })
+      .first();
+
+    if (!category || !category.isActive) {
+      throw new GraphQLError(
+        "Selected activity category is unavailable.",
+        { extensions: { code: "BAD_USER_INPUT" } }
+      );
+    }
+  }
+
+  // 5. Validate the combined dates
+  const nextStartsAt =
+    input.startsAt !== undefined
+      ? new Date(input.startsAt)
+      : activity.startsAt;
+
+  const nextEndsAt =
+    input.endsAt !== undefined ? input.endsAt ? new Date(input.endsAt) : null : activity.endsAt;
+
+  if (nextEndsAt && nextEndsAt <= nextStartsAt) {
+    throw new GraphQLError(
+      "End date must be later than start date.",
+      { extensions: { code: "BAD_USER_INPUT" } }
+    );
+  }
+
+  // 6. Prevent capacity from going below approved participants
+  if (input.capacity !== undefined) {
+    const { approvedCount } = await db.orm.public.Participation
+      .where({
+        activityId,
+        status: "APPROVED",
+      })
+      .aggregate((aggregate : { count: () => number }) => ({
+        approvedCount: aggregate.count(),
+      }));
+
+    if (input.capacity < approvedCount) {
+      throw new GraphQLError(
+        `Capacity cannot be lower than the ${approvedCount} approved participants.`,
+        { extensions: { code: "BAD_USER_INPUT" } }
+      );
+    }
+  }
+
+  // 7. Build update data
+  const updateData = {
+    ...(input.title !== undefined && {
+      title: input.title,
+    }),
+    ...(input.description !== undefined && {
+      description: input.description,
+    }),
+    ...(input.coverImage !== undefined && {
+      coverImage: input.coverImage,
+    }),
+    ...(input.categoryId !== undefined && {
+      categoryId: input.categoryId,
+    }),
+    ...(input.locationName !== undefined && {
+      locationName: input.locationName,
+    }),
+    ...(input.address !== undefined && {
+      address: input.address,
+    }),
+    ...(input.startsAt !== undefined && {
+      startsAt: nextStartsAt,
+    }),
+    ...(input.endsAt !== undefined && {
+      endsAt: nextEndsAt,
+    }),
+    ...(input.capacity !== undefined && {
+      capacity: input.capacity,
+    }),
+  };
+
+  // 8. Update the activity
+  const updatedActivity = await db.orm.public.Activity
+    .where(
+      user.role === "ADMIN"
+        ? { id: activityId }
+        : { id: activityId, hostId: user.id }
+    )
+    .update(updateData);
+
+  if (!updatedActivity) {
+    throw new GraphQLError("Unable to update activity.", {
+      extensions: { code: "INTERNAL_SERVER_ERROR" },
+    });
+  }
+
+  return updatedActivity;
 }
