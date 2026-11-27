@@ -3,7 +3,7 @@ import type { GraphQLContext } from "../../context.js";
 
 import { requireAuth, requireRole } from '../../utils.js';
 import { createActivitySchema, getActivitiesSchema, getMyHostedActivitiesSchema, updateActivitySchema, validateInput } from './validation.js';
-import { createActivity, getActivities, getActivityById, getActivityCategories, getMyHostedActivities, updateActivity } from './service.js';
+import { cancelActivity, createActivity, getActivities, getActivityById, getActivityCategories, getMyHostedActivities, publishActivity, updateActivity } from './service.js';
 
 export const activityResolvers = {
   Query: {
@@ -103,6 +103,34 @@ export const activityResolvers = {
           context.db
         );
       },
+
+      publishActivity: async (
+      _parent: unknown,
+      args: { id: string },
+      context: GraphQLContext
+    ) => {
+      const user = requireRole(context, ["HOST", "ADMIN"]);
+
+      return publishActivity(
+        args.id,
+        user,
+        context.db
+      );
+    },
+
+    cancelActivity: async (
+      _parent: unknown,
+      args: { id: string },
+      context: GraphQLContext
+    ) => {
+      const user = requireRole(context, ["HOST", "ADMIN"]);
+
+      return cancelActivity(
+        args.id,
+        user,
+        context.db
+      );
+    },
     
   },
 

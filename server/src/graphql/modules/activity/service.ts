@@ -282,3 +282,142 @@ export async function updateActivity(
 
   return updatedActivity;
 }
+
+
+export async function publishActivity(
+  activityId: string,
+  user: RequestingUser,
+  db: any
+) {
+  // 1. Find activity
+  const activity = await db.orm.public.Activity
+    .whereUnique({ id: activityId })
+    .first();
+
+  if (!activity) {
+    throw new GraphQLError("Activity not found.", {
+      extensions: { code: "NOT_FOUND" },
+    });
+  }
+
+  // 2. Check ownership
+  if (user.role !== "ADMIN" && activity.hostId !== user.id) {
+    throw new GraphQLError(
+      "You are not authorized to publish this activity.",
+      { extensions: { code: "FORBIDDEN" } }
+    );
+  }
+
+  // 3. Only drafts can be published
+  if (activity.status !== "DRAFT") {
+    throw new GraphQLError(
+      "Only draft activities can be published.",
+      { extensions: { code: "BAD_USER_INPUT" } }
+    );
+  }
+
+  // 4. Activity must be in the future
+  if (activity.startsAt <= new Date()) {
+    throw new GraphQLError(
+      "An activity must have a future start date to be published.",
+      { extensions: { code: "BAD_USER_INPUT" } }
+    );
+  }
+
+  // 5. Category must still be active
+  const category = await db.orm.public.ActivityCategory
+    .whereUnique({ id: activity.categoryId })
+    .first();
+
+  if (!category || !category.isActive) {
+    throw new GraphQLError(
+      "This activity's category is unavailable.",
+      { extensions: { code: "BAD_USER_INPUT" } }
+    );
+  }
+
+  // 6. Update only if the activity is still a draft
+  const updatedActivity =
+    user.role === "ADMIN"
+      ? await db.orm.public.Activity
+          .where({
+            id: activityId,
+            status: "DRAFT",
+          })
+          .update({ status: "PUBLISHED" })
+      : await db.orm.public.Activity
+          .where({
+            id: activityId,
+            hostId: user.id,
+            status: "DRAFT",
+          })
+          .update({ status: "PUBLISHED" });
+
+  if (!updatedActivity) {
+    throw new GraphQLError(
+      "Activity could not be published. Its status may have changed.",
+      { extensions: { code: "CONFLICT" } }
+    );
+  }
+
+  return updatedActivity;
+}
+
+export async function cancelActivity(
+  activityId: string,
+  user: RequestingUser,
+  db: any
+) {
+  // 1. Find activity
+  const activity = await db.orm.public.Activity
+    .whereUnique({ id: activityId })
+    .first();
+
+  if (!activity) {
+    throw new GraphQLError("Activity not found.", {
+      extensions: { code: "NOT_FOUND" },
+    });
+  }
+
+  // 2. Check ownership
+  if (user.role !== "ADMIN" && activity.hostId !== user.id) {
+    throw new GraphQLError(
+      "You are not authorized to cancel this activity.",
+      { extensions: { code: "FORBIDDEN" } }
+    );
+  }
+
+  // 3. Only published activities can be cancelled
+  if (activity.status !== "PUBLISHED") {
+    throw new GraphQLError(
+      "Only published activities can be cancelled.",
+      { extensions: { code: "BAD_USER_INPUT" } }
+    );
+  }
+
+  // 4. Update only if the activity is still published
+  const updatedActivity =
+    user.role === "ADMIN"
+      ? await db.orm.public.Activity
+          .where({
+            id: activityId,
+            status: "PUBLISHED",
+          })
+          .update({ status: "CANCELLED" })
+      : await db.orm.public.Activity
+          .where({
+            id: activityId,
+            hostId: user.id,
+            status: "PUBLISHED",
+          })
+          .update({ status: "CANCELLED" });
+
+  if (!updatedActivity) {
+    throw new GraphQLError(
+      "Activity could not be cancelled. Its status may have changed.",
+      { extensions: { code: "CONFLICT" } }
+    );
+  }
+
+  return updatedActivity;
+}
